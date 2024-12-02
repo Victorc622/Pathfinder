@@ -1,0 +1,72 @@
+/* General container styles */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background: linear-gradient(to bottom, #f0f4f8, #d9e8f6);
+    height: 100vh;
+    text-align: center;
+  }
+  
+  /* Header styles */
+  .header {
+    margin-bottom: 2rem;
+  }
+  
+  .title {
+    font-size: 3rem;
+    color: #2c3e50;
+    font-weight: bold;
+  }
+  
+  .subtitle {
+    font-size: 1.5rem;
+    color: #34495e;
+  }
+  
+  /* Features grid */
+  .features {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: 2rem 0;
+    width: 80%;
+  }
+  
+  .featureCard {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex: 1 1 30%;
+    max-width: 300px;
+  }
+  
+  .featureCard h2 {
+    color: #2980b9;
+    font-size: 1.5rem;
+  }
+  
+  .featureCard p {
+    color: #7f8c8d;
+    font-size: 1rem;
+  }
+  
+  /* Call-to-action button */
+  .ctaButton {
+    padding: 0.75rem 2rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .ctaButton:hover {
+    background-color: #1d70a2;
+  }
+  

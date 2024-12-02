@@ -10,7 +10,7 @@ function LoginFormPage() {
   const sessionUser = useSelector((state) => state.session.user);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState([]);
 
   if (sessionUser) return <Navigate to="/" replace={true} />;
 
@@ -25,41 +25,68 @@ function LoginFormPage() {
     );
 
     if (serverResponse) {
-      setErrors(serverResponse);
+      setErrors(Object.values(serverResponse));
+    } else {
+      navigate("/");
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    const serverResponse = await dispatch(
+      thunkLogin({
+        email: "demo@aa.io",
+        password: "password",
+      })
+    );
+
+    if (serverResponse) {
+      setErrors(Object.values(serverResponse));
     } else {
       navigate("/");
     }
   };
 
   return (
-    <>
-      <h1>Log In</h1>
-      {errors.length > 0 &&
-        errors.map((message) => <p key={message}>{message}</p>)}
-      <form onSubmit={handleSubmit}>
-        <label>
+    <div className="form-container">
+      <h1 className="form-title">Log In</h1>
+      {errors.length > 0 && (
+        <div className="error-messages">
+          {errors.map((message, index) => (
+            <p key={index} className="error-text">
+              {message}
+            </p>
+          ))}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} className="form">
+        <label className="form-label">
           Email
           <input
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="form-input"
           />
         </label>
-        {errors.email && <p>{errors.email}</p>}
-        <label>
+        <label className="form-label">
           Password
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="form-input"
           />
         </label>
-        {errors.password && <p>{errors.password}</p>}
-        <button type="submit">Log In</button>
+        <button type="submit" className="form-button">
+          Log In
+        </button>
+        <button type="button" onClick={handleDemoLogin} className="form-button demo-button">
+          Log in as Demo User
+        </button>
       </form>
-    </>
+    </div>
   );
 }
 

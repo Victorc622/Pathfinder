@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { thunkLogin } from "../../redux/session";
 import { useDispatch } from "react-redux";
+import { thunkLogin } from "../../redux/session";
 import { useModal } from "../../context/Modal";
 import "./LoginForm.css";
 
@@ -14,47 +14,57 @@ function LoginFormModal() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const serverResponse = await dispatch(
+    const response = await dispatch(
       thunkLogin({
         email,
         password,
       })
     );
 
-    if (serverResponse) {
-      setErrors(serverResponse);
+    if (response) {
+      setErrors(response);
     } else {
       closeModal();
     }
   };
 
   return (
-    <>
-      <h1>Log In</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Email
+    <div className="login-modal">
+      <h1 className="login-title">Log In</h1>
+      <form className="login-form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
           <input
+            id="email"
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className={`form-input ${errors.email ? "input-error" : ""}`}
           />
-        </label>
-        {errors.email && <p>{errors.email}</p>}
-        <label>
-          Password
+          {errors.email && <span className="error-text">{errors.email}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
           <input
+            id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className={`form-input ${errors.password ? "input-error" : ""}`}
           />
-        </label>
-        {errors.password && <p>{errors.password}</p>}
-        <button type="submit">Log In</button>
+          {errors.password && (
+            <span className="error-text">{errors.password}</span>
+          )}
+        </div>
+
+        <button type="submit" className="login-button">
+          Log In
+        </button>
       </form>
-    </>
+    </div>
   );
 }
 
