@@ -1,0 +1,39 @@
+.destination-container {
+    padding: 20px;
+  }
+  
+  .destination-card {
+    display: flex;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .destination-image {
+    width: 40%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .destination-info {
+    padding: 20px;
+    width: 60%;
+  }
+  
+  .destination-info h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .destination-description {
+    font-size: 1rem;
+    color: #777;
+    margin-bottom: 20px;
+  }
+  
+  .destination-details p {
+    font-size: 1.1rem;
+    color: #555;
+  }  

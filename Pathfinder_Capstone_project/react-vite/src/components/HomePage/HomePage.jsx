@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from "react-router-dom";
 import styles from "./HomePage.module.css";
 
 const HomePage = () => {
@@ -29,9 +29,13 @@ const HomePage = () => {
           <p>Share and plan trips with family and friends in real-time.</p>
         </div>
       </div>
-      <button className={styles.ctaButton} onClick={() => alert("Get Started!")}>
-        Get Started
-      </button>
+
+      {/* Updated Get Started button to navigate to /create-itinerary */}
+      <Link to="/create-itinerary">
+        <button className={styles.ctaButton}>
+          Get Started
+        </button>
+      </Link>
     </div>
   );
 };

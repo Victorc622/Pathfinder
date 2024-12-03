@@ -7,14 +7,28 @@ class Itinerary(db.Model):
         __table_args__ = {'schema': SCHEMA}
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('users.id')), nullable=False)
+    user_id = db.Column(
+        db.Integer, 
+        db.ForeignKey(add_prefix_for_prod('users.id')), 
+        nullable=False
+    )
     name = db.Column(db.String(255), nullable=False)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
 
-    user = db.relationship('User', back_populates='itineraries')
-    destinations = db.relationship('Destination', back_populates='itinerary', cascade="all, delete-orphan")
-    collaborations = db.relationship('Collaboration', back_populates='itinerary', cascade="all, delete-orphan")
+    user = db.relationship(
+        'User', 
+        back_populates='itineraries'
+    )
+    destinations = db.relationship(
+        'Destination', 
+        back_populates='itinerary', 
+        cascade="all, delete-orphan"
+    )
+    collaborations = db.relationship(
+        'Collaboration', 
+        back_populates='itinerary'
+    )
 
     def to_dict(self):
         return {

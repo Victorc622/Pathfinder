@@ -34,12 +34,12 @@ def login():
     return form.errors, 401
 
 
-@auth_routes.route('/logout')
+@auth_routes.route('/logout', methods=['POST'])
 def logout():
     """
     Logs a user out
     """
-    logout_user()
+    logout_user()  # Log the user out
     return {'message': 'User logged out'}
 
 

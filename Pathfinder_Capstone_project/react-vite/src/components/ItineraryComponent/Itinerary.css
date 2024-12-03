@@ -1,0 +1,53 @@
+.itinerary-container {
+    background-color: #f6f7fb;
+    padding: 20px;
+  }
+  
+  .itinerary-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .itinerary-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+  }
+  
+  .itinerary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .itinerary-header h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+  
+  .itinerary-date {
+    color: #777;
+    font-size: 1.1rem;
+  }
+  
+  .activities-list {
+    margin-top: 20px;
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .activity-item {
+    padding: 10px;
+    border-bottom: 1px solid #e1e1e1;
+  }
+  
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+  
+  .activity-time {
+    font-size: 0.9rem;
+    color: #777;
+  }  

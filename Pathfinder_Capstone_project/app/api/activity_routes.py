@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import Activity, Itinerary, db
+from app.models import db
 from flask_login import login_required, current_user
 
 activities_routes = Blueprint('activities', __name__)
@@ -8,6 +8,7 @@ activities_routes = Blueprint('activities', __name__)
 @activities_routes.route('/activities', methods=['POST'])
 @login_required
 def create_activity():
+    from app.models import Activity
     data = request.get_json()
     
     name = data.get('name')
@@ -35,6 +36,7 @@ def create_activity():
 @activities_routes.route('/activities', methods=['GET'])
 @login_required
 def get_activities():
+    from app.models import Activity  # Import Activity here to avoid circular import
     itinerary_id = request.args.get('itinerary_id')
     destination_id = request.args.get('destination_id')
 
@@ -51,6 +53,7 @@ def get_activities():
 @activities_routes.route('/activities/<int:activity_id>', methods=['PUT'])
 @login_required
 def update_activity(activity_id):
+    from app.models import Activity  # Import Activity here to avoid circular import
     data = request.get_json()
     
     activity = Activity.query.get_or_404(activity_id)
@@ -73,6 +76,7 @@ def update_activity(activity_id):
 @activities_routes.route('/activities/<int:activity_id>', methods=['DELETE'])
 @login_required
 def delete_activity(activity_id):
+    from app.models import Activity  # Import Activity here to avoid circular import
     activity = Activity.query.get_or_404(activity_id)
 
     # Ensure the activity belongs to the logged-in user

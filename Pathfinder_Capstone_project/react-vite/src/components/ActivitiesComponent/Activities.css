@@ -1,0 +1,30 @@
+.activities-container {
+    padding: 20px;
+  }
+  
+  .activities-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .activity-card {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .activity-card h3 {
+    font-size: 1.6rem;
+    font-weight: 600;
+  }
+  
+  .activity-card p {
+    color: #777;
+  }
+  
+  .activity-time {
+    font-size: 1.1rem;
+    color: #555;
+  }  

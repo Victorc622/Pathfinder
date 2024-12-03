@@ -52,7 +52,11 @@
 .login {
   font-size: 1rem;
   text-decoration: none;
-  color: #007bff;
+  color: #fff;
+  background-color: #007bff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  transition: background-color 0.3s;
 }
 
 .signup {
@@ -66,5 +70,9 @@
 }
 
 .signup:hover {
+  background-color: #0056b3;
+}
+
+.login:hover {
   background-color: #0056b3;
 }
