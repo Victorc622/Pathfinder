@@ -1,93 +1,80 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
 import { thunkSignup } from "../../redux/session";
+import './SignupForm.css';
 
 function SignupFormPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const sessionUser = useSelector((state) => state.session.user);
+
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
 
-  if (sessionUser) return <Navigate to="/" replace={true} />;
+  useEffect(() => {
+    if (sessionUser) {
+      navigate("/");
+    }
+  }, [sessionUser, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const data = { email, username, password };
+    const response = await dispatch(thunkSignup(data));
 
-    if (password !== confirmPassword) {
-      return setErrors({
-        confirmPassword:
-          "Confirm Password field must be the same as the Password field",
-      });
-    }
-
-    const serverResponse = await dispatch(
-      thunkSignup({
-        email,
-        username,
-        password,
-      })
-    );
-
-    if (serverResponse) {
-      setErrors(serverResponse);
+    if (response.errors) {
+      setErrors(response.errors);
     } else {
       navigate("/");
     }
   };
 
   return (
-    <>
-      <h1>Sign Up</h1>
-      {errors.server && <p>{errors.server}</p>}
+    <div className="signup-form-container">
+      <h2>Sign Up for Pathfinder</h2>
       <form onSubmit={handleSubmit}>
-        <label>
-          Email
+        <div>
+          <label htmlFor="email">Email:</label>
           <input
-            type="text"
+            type="email"
+            id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </label>
-        {errors.email && <p>{errors.email}</p>}
-        <label>
-          Username
+          {errors.email && <p className="error">{errors.email}</p>}
+        </div>
+        <div>
+          <label htmlFor="username">Username:</label>
           <input
             type="text"
+            id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
-        </label>
-        {errors.username && <p>{errors.username}</p>}
-        <label>
-          Password
+          {errors.username && <p className="error">{errors.username}</p>}
+        </div>
+        <div>
+          <label htmlFor="password">Password:</label>
           <input
             type="password"
+            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </label>
-        {errors.password && <p>{errors.password}</p>}
-        <label>
-          Confirm Password
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </label>
-        {errors.confirmPassword && <p>{errors.confirmPassword}</p>}
+          {errors.password && <p className="error">{errors.password}</p>}
+        </div>
         <button type="submit">Sign Up</button>
+        <button type="button" onClick={() => navigate("/login")}>
+          Already have an account? Log In
+        </button>
       </form>
-    </>
+    </div>
   );
 }
 

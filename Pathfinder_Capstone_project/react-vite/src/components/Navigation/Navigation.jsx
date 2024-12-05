@@ -1,45 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { thunkLogout } from "../../redux/session";
 import styles from "./Navigation.module.css";
 
 const Navigation = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((store) => store.session.user);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef();
+
+  const toggleMenu = (e) => {
+    e.stopPropagation();
+    setShowMenu(!showMenu);
+  };
+
+  const logout = async (e) => {
+    e.preventDefault();
+    try {
+      await dispatch(thunkLogout());
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+    setShowMenu(false);
+  };
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        const response = await fetch('/api/auth/check-login-status', { credentials: 'include' });
-        if (response.ok) {
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false);
-        }
-      } catch (error) {
-        console.error('Error checking login status:', error);
+    const closeMenu = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false);
       }
     };
 
-    checkLoginStatus();
-  }, []);
-
-  const handleSignOut = async () => {
-    try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        setIsLoggedIn(false);
-        navigate('/login');
-      } else {
-        console.error('Error logging out');
-      }
-    } catch (error) {
-      console.error('Error during sign-out:', error);
+    if (showMenu) {
+      document.addEventListener("click", closeMenu);
     }
-  };
+
+    return () => {
+      document.removeEventListener("click", closeMenu);
+    };
+  }, [showMenu]);
 
   return (
     <header className={styles.navigation}>
@@ -66,10 +68,24 @@ const Navigation = () => {
         </ul>
       </nav>
       <div className={styles.actions}>
-        {isLoggedIn ? (
-          <button onClick={handleSignOut} className={styles.login}>
-            Log Out
-          </button>
+        {user ? (
+          <div className={styles.profileMenu} ref={menuRef}>
+            <button onClick={toggleMenu} className={styles.profileButton}>
+              {user.username}
+            </button>
+            {showMenu && (
+              <ul className={styles.profileDropdown}>
+                <li>
+                  <span>{user.email}</span>
+                </li>
+                <li>
+                  <button onClick={logout} className={styles.logoutButton}>
+                    Log Out
+                  </button>
+                </li>
+              </ul>
+            )}
+          </div>
         ) : (
           <>
             <Link to="/login" className={styles.login}>

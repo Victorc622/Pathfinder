@@ -1,53 +1,93 @@
 .itinerary-container {
-    background-color: #f6f7fb;
-    padding: 20px;
-  }
-  
-  .itinerary-list {
-    display: flex;
-    flex-direction: column;
-  }
-  
+  background-color: #f9fafc;
+  padding: 40px 20px;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.itinerary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.itinerary-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.itinerary-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.itinerary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.itinerary-header h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0;
+}
+
+.itinerary-header p {
+  font-size: 1rem;
+  color: #777;
+}
+
+button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 4px #007bff;
+}
+
+@media (max-width: 768px) {
   .itinerary-card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 20px;
+      padding: 15px;
   }
-  
-  .itinerary-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
+
   .itinerary-header h3 {
-    font-size: 1.8rem;
-    font-weight: 600;
+      font-size: 1.2rem;
   }
-  
-  .itinerary-date {
-    color: #777;
-    font-size: 1.1rem;
+
+  button {
+      font-size: 0.9rem;
+      padding: 8px 16px;
   }
-  
-  .activities-list {
-    margin-top: 20px;
-    list-style: none;
-    padding-left: 0;
+}
+
+@media (max-width: 480px) {
+  .itinerary-container {
+      padding: 20px 10px;
   }
-  
-  .activity-item {
-    padding: 10px;
-    border-bottom: 1px solid #e1e1e1;
+
+  .itinerary-header h3 {
+      font-size: 1rem;
   }
-  
-  .activity-item:last-child {
-    border-bottom: none;
+
+  button {
+      font-size: 0.8rem;
+      padding: 6px 12px;
   }
-  
-  .activity-time {
-    font-size: 0.9rem;
-    color: #777;
-  }  
+}

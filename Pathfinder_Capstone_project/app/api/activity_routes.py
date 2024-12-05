@@ -1,14 +1,16 @@
 from flask import Blueprint, request, jsonify
-from app.models import db
+from app.models import db, Activity, Itinerary
 from flask_login import login_required, current_user
 
 activities_routes = Blueprint('activities', __name__)
 
 # Create a new activity
-@activities_routes.route('/activities', methods=['POST'])
+@activities_routes.route('/', methods=['POST'])
 @login_required
 def create_activity():
-    from app.models import Activity
+    """
+    Creates a new activity for a given itinerary or destination.
+    """
     data = request.get_json()
     
     name = data.get('name')
@@ -16,8 +18,12 @@ def create_activity():
     destination_id = data.get('destination_id')
     itinerary_id = data.get('itinerary_id')
     
-    if not name or not description or not destination_id:
-        return jsonify({'error': 'Missing required fields'}), 400
+    if not name or not description or not destination_id or not itinerary_id:
+        return jsonify({'error': 'Missing required fields: name, description, destination_id, or itinerary_id'}), 400
+
+    itinerary = Itinerary.query.get(itinerary_id)
+    if not itinerary or itinerary.user_id != current_user.id:
+        return jsonify({'error': 'Not authorized to add activities to this itinerary'}), 403
 
     # Create the new activity
     activity = Activity(
@@ -32,54 +38,63 @@ def create_activity():
 
     return jsonify(activity.to_dict()), 201
 
-# View all activities (either by destination or itinerary)
-@activities_routes.route('/activities', methods=['GET'])
+# View all activities (filtered by itinerary or destination)
+@activities_routes.route('/', methods=['GET'])
 @login_required
 def get_activities():
-    from app.models import Activity  # Import Activity here to avoid circular import
+    """
+    Retrieves all activities filtered by itinerary or destination.
+    """
     itinerary_id = request.args.get('itinerary_id')
     destination_id = request.args.get('destination_id')
 
+    if not itinerary_id and not destination_id:
+        return jsonify({'error': 'Must provide either itinerary_id or destination_id'}), 400
+
     if itinerary_id:
+        itinerary = Itinerary.query.get(itinerary_id)
+        if not itinerary or itinerary.user_id != current_user.id:
+            return jsonify({'error': 'Not authorized to view activities for this itinerary'}), 403
         activities = Activity.query.filter_by(itinerary_id=itinerary_id).all()
     elif destination_id:
         activities = Activity.query.filter_by(destination_id=destination_id).all()
-    else:
-        return jsonify({'error': 'Must provide either itinerary_id or destination_id'}), 400
-    
-    return jsonify([activity.to_dict() for activity in activities])
+
+    return jsonify([activity.to_dict() for activity in activities]), 200
 
 # Update an existing activity
-@activities_routes.route('/activities/<int:activity_id>', methods=['PUT'])
+@activities_routes.route('/<int:activity_id>', methods=['PUT'])
 @login_required
 def update_activity(activity_id):
-    from app.models import Activity  # Import Activity here to avoid circular import
+    """
+    Updates an existing activity.
+    """
     data = request.get_json()
     
-    activity = Activity.query.get_or_404(activity_id)
+    activity = Activity.query.get(activity_id)
+    if not activity:
+        return jsonify({'error': 'Activity not found'}), 404
 
-    # Ensure the activity belongs to the logged-in user
     if activity.itinerary.user_id != current_user.id:
         return jsonify({'error': 'Not authorized to edit this activity'}), 403
 
-    name = data.get('name', activity.name)
-    description = data.get('description', activity.description)
-
-    activity.name = name
-    activity.description = description
+    activity.name = data.get('name', activity.name)
+    activity.description = data.get('description', activity.description)
 
     db.session.commit()
 
-    return jsonify(activity.to_dict())
+    return jsonify(activity.to_dict()), 200
 
 # Delete an existing activity
-@activities_routes.route('/activities/<int:activity_id>', methods=['DELETE'])
+@activities_routes.route('/<int:activity_id>', methods=['DELETE'])
 @login_required
 def delete_activity(activity_id):
-    from app.models import Activity  # Import Activity here to avoid circular import
-    activity = Activity.query.get_or_404(activity_id)
+    """
+    Deletes an activity.
+    """
+    activity = Activity.query.get(activity_id)
+    if not activity:
+        return jsonify({'error': 'Activity not found'}), 404
 
-    # Ensure the activity belongs to the logged-in user
     if activity.itinerary.user_id != current_user.id:
         return jsonify({'error': 'Not authorized to delete this activity'}), 403
 

@@ -1,39 +1,104 @@
 .destination-container {
-    padding: 20px;
-  }
-  
+  background-color: #f9fafc;
+  padding: 40px 20px;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.destination-card {
+  display: flex;
+  flex-direction: row;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.destination-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.destination-image {
+  width: 40%;
+  object-fit: cover;
+  border-right: 1px solid #e0e0e0;
+}
+
+.destination-info {
+  padding: 20px;
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.destination-info h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.destination-description {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+.destination-card button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: flex-start;
+}
+
+.destination-card button:hover {
+  background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
   .destination-card {
-    display: flex;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+      flex-direction: column;
   }
-  
+
   .destination-image {
-    width: 40%;
-    height: 100%;
-    object-fit: cover;
+      width: 100%;
+      height: 200px;
   }
-  
+
   .destination-info {
-    padding: 20px;
-    width: 60%;
+      width: 100%;
+      padding: 15px;
   }
-  
+
   .destination-info h2 {
-    font-size: 2rem;
-    font-weight: 600;
-    margin-bottom: 10px;
+      font-size: 1.5rem;
   }
-  
+
   .destination-description {
-    font-size: 1rem;
-    color: #777;
-    margin-bottom: 20px;
+      font-size: 0.9rem;
   }
-  
-  .destination-details p {
-    font-size: 1.1rem;
-    color: #555;
-  }  
+}
+
+@media (max-width: 480px) {
+  .destination-info h2 {
+      font-size: 1.25rem;
+  }
+
+  .destination-description {
+      font-size: 0.85rem;
+  }
+
+  .destination-card button {
+      font-size: 0.9rem;
+      padding: 8px 16px;
+  }
+}

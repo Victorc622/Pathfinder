@@ -1,43 +1,60 @@
-import React from 'react';
-import './Itinerary.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const Itinerary = ({ itineraryData }) => {
-  if (!itineraryData || itineraryData.length === 0) {
-    return (
-      <div className="itinerary-container">
-        <h2>My Itinerary</h2>
-        <p>No itineraries available.</p>
-      </div>
-    );
+const Itinerary = () => {
+  const [itineraries, setItineraries] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchItineraries = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("/api/itineraries", { credentials: "include" });
+        if (!response.ok) {
+          throw new Error("Failed to fetch itineraries");
+        }
+        const data = await response.json();
+        setItineraries(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItineraries();
+  }, []);
+
+  const handleRedirect = () => {
+    navigate("/create-itinerary");
+  };
+
+  if (loading) {
+    return <p>Loading itineraries...</p>;
   }
 
   return (
-    <div className="itinerary-container">
-      <h2>My Itinerary</h2>
-      <div className="itinerary-list">
-        {itineraryData.map((item, index) => (
-          <div key={index} className="itinerary-card">
-            <div className="itinerary-header">
-              <h3>{item.title || 'Untitled Itinerary'}</h3>
-              <p className="itinerary-date">{item.date || 'No Date Available'}</p>
-            </div>
-            <ul className="activities-list">
-              {item.activities && item.activities.length > 0 ? (
-                item.activities.map((activity, idx) => (
-                  <li key={idx} className="activity-item">
-                    <p>{activity.name || 'Unnamed Activity'}</p>
-                    <p className="activity-time">{activity.time || 'No Time Specified'}</p>
-                  </li>
-                ))
-              ) : (
-                <li className="activity-item">
-                  <p>No activities listed for this itinerary.</p>
-                </li>
-              )}
-            </ul>
-          </div>
-        ))}
-      </div>
+    <div>
+      <h2>My Itineraries</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {itineraries.length === 0 ? (
+        <p>No itineraries found. Create your first itinerary below!</p>
+      ) : (
+        <ul>
+          {itineraries.map((itinerary) => (
+            <li key={itinerary.id}>
+              <h3>{itinerary.name}</h3>
+              <p>{`Start: ${itinerary.start_date}`}</p>
+              <p>{`End: ${itinerary.end_date}`}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <button onClick={handleRedirect}>Create New Itinerary</button>
     </div>
   );
 };

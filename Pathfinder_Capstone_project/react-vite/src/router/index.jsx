@@ -4,7 +4,7 @@ import SignupFormPage from '../components/SignupFormPage';
 import Layout from './Layout';
 import HomePage from '../components/HomePage/HomePage';
 import Itinerary from '../components/ItineraryComponent/Itinerary';
-import CreateItinerary from '../components/CreateItineraryComponent/CreateItinerary'; // Import the new component
+import CreateItinerary from '../components/CreateItineraryComponent/CreateItinerary';
 import Destination from '../components/DestinationComponent/Destination';
 import Collaboration from '../components/CollaborationComponent/Collaboration';
 import Activities from '../components/ActivitiesComponent/Activities';

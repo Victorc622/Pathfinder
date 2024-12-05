@@ -14,15 +14,13 @@ function LoginFormModal() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Dispatch login action
     const response = await dispatch(
-      thunkLogin({
-        email,
-        password,
-      })
+      thunkLogin({ email, password })
     );
 
-    if (response) {
-      setErrors(response);
+    if (response?.errors) {
+      setErrors(response.errors);
     } else {
       closeModal();
     }
@@ -30,36 +28,30 @@ function LoginFormModal() {
 
   return (
     <div className="login-modal">
-      <h1 className="login-title">Log In</h1>
-      <form className="login-form" onSubmit={handleSubmit}>
+      <h2>Log In</h2>
+      <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
+            type="email"
             id="email"
-            type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className={`form-input ${errors.email ? "input-error" : ""}`}
           />
-          {errors.email && <span className="error-text">{errors.email}</span>}
+          {errors.email && <p className="error-text">{errors.email}</p>}
         </div>
-
         <div className="form-group">
           <label htmlFor="password">Password</label>
           <input
-            id="password"
             type="password"
+            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className={`form-input ${errors.password ? "input-error" : ""}`}
           />
-          {errors.password && (
-            <span className="error-text">{errors.password}</span>
-          )}
+          {errors.password && <p className="error-text">{errors.password}</p>}
         </div>
-
         <button type="submit" className="login-button">
           Log In
         </button>

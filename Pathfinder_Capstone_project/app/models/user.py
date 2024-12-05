@@ -14,15 +14,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(255), nullable=False, unique=True)
     hashed_password = db.Column(db.String(255), nullable=False)
 
-    itineraries = db.relationship(
-        'Itinerary', 
-        back_populates='user', 
-        cascade="all, delete-orphan"
-    )
-    collaborations = db.relationship(
-        'Collaboration', 
-        back_populates='user'
-    )
+    itineraries = db.relationship('Itinerary', back_populates='user')
+    collaborations = db.relationship('Collaboration', back_populates='user')
 
     @property
     def password(self):
@@ -35,9 +28,13 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
-    def to_dict(self):
-        return {
+    def to_dict(self, include_relations=False):
+        user_dict = {
             'id': self.id,
             'username': self.username,
             'email': self.email
         }
+        if include_relations:
+            user_dict['itineraries'] = [itinerary.to_dict() for itinerary in self.itineraries]
+            user_dict['collaborations'] = [collab.to_dict() for collab in self.collaborations]
+        return user_dict

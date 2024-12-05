@@ -7,18 +7,11 @@ class Activity(db.Model):
         __table_args__ = {'schema': SCHEMA}
 
     id = db.Column(db.Integer, primary_key=True)
-    destination_id = db.Column(
-        db.Integer, 
-        db.ForeignKey(add_prefix_for_prod('destinations.id')), 
-        nullable=False
-    )
+    destination_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('destinations.id')), nullable=False)
     name = db.Column(db.String(255), nullable=False)
     time = db.Column(db.Time, nullable=False)
 
-    destination = db.relationship(
-        'Destination', 
-        back_populates='activities'
-    )
+    destination = db.relationship('Destination', back_populates='activities')
 
     def to_dict(self):
         return {

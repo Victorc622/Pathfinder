@@ -4,7 +4,8 @@ import styles from "./CreateItinerary.module.css";
 
 const CreateItinerary = () => {
   const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [activities, setActivities] = useState([]);
   const navigate = useNavigate();
 
@@ -12,20 +13,32 @@ const CreateItinerary = () => {
     setActivities([...activities, { name: "", time: "" }]);
   };
 
+  const formatToMMDDYYYY = (date) => {
+    const [year, month, day] = date.split("-");
+    return `${month}-${day}-${year}`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const formattedStartDate = formatToMMDDYYYY(startDate);
+    const formattedEndDate = formatToMMDDYYYY(endDate);
+
     try {
-      const response = await fetch("/create-itinerary", {
+      const response = await fetch("/api/itineraries/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, date, activities }),
+        body: JSON.stringify({
+          title,
+          start_date: formattedStartDate,
+          end_date: formattedEndDate,
+          activities,
+        }),
       });
 
       if (response.ok) {
-
         navigate("/");
       } else {
         console.error("Error creating itinerary");
@@ -46,7 +59,9 @@ const CreateItinerary = () => {
       <h2 className={styles.title}>Create an Itinerary</h2>
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.inputGroup}>
-          <label htmlFor="title" className={styles.label}>Itinerary Title:</label>
+          <label htmlFor="title" className={styles.label}>
+            Itinerary Title:
+          </label>
           <input
             type="text"
             id="title"
@@ -57,13 +72,28 @@ const CreateItinerary = () => {
           />
         </div>
         <div className={styles.inputGroup}>
-          <label htmlFor="date" className={styles.label}>Date:</label>
+          <label htmlFor="start_date" className={styles.label}>
+            Start Date:
+          </label>
           <input
             type="date"
-            id="date"
+            id="start_date"
             className={styles.input}
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            required
+          />
+        </div>
+        <div className={styles.inputGroup}>
+          <label htmlFor="end_date" className={styles.label}>
+            End Date:
+          </label>
+          <input
+            type="date"
+            id="end_date"
+            className={styles.input}
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
             required
           />
         </div>
@@ -75,21 +105,33 @@ const CreateItinerary = () => {
               className={styles.activityInput}
               placeholder="Activity Name"
               value={activity.name}
-              onChange={(e) => handleActivityChange(index, "name", e.target.value)}
+              onChange={(e) =>
+                handleActivityChange(index, "name", e.target.value)
+              }
               required
             />
             <input
               type="time"
               className={styles.activityInput}
               value={activity.time}
-              onChange={(e) => handleActivityChange(index, "time", e.target.value)}
+              onChange={(e) =>
+                handleActivityChange(index, "time", e.target.value)
+              }
               required
             />
           </div>
         ))}
-        <button type="button" className={styles.addButton} onClick={addActivity}>Add Activity</button>
+        <button
+          type="button"
+          className={styles.addButton}
+          onClick={addActivity}
+        >
+          Add Activity
+        </button>
         <div>
-          <button type="submit" className={styles.submitButton}>Create Itinerary</button>
+          <button type="submit" className={styles.submitButton}>
+            Create Itinerary
+          </button>
         </div>
       </form>
     </div>

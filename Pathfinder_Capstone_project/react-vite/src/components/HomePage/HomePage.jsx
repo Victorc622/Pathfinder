@@ -30,7 +30,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Updated Get Started button to navigate to /create-itinerary */}
       <Link to="/create-itinerary">
         <button className={styles.ctaButton}>
           Get Started

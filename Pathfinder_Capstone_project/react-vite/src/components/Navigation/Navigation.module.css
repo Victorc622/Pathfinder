@@ -2,12 +2,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
-  background-color: #fff;
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
 }
 
 .logo {
@@ -22,57 +20,128 @@
   color: inherit;
 }
 
+.logo a:hover {
+  color: #0056b3;
+}
+
+.nav {
+  flex-grow: 1;
+  margin-left: 20px;
+}
+
 .nav ul {
-  display: flex;
-  gap: 1.5rem;
   list-style: none;
-  margin: 0;
+  display: flex;
+  gap: 15px;
   padding: 0;
+  margin: 0;
 }
 
 .nav ul li {
-  font-size: 1rem;
+  display: inline;
 }
 
-.nav ul li a {
+.nav a {
   text-decoration: none;
+  font-size: 1rem;
   color: #333;
-  transition: color 0.3s;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
-.nav ul li a:hover {
+.nav a:hover {
   color: #007bff;
 }
 
 .actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 10px;
+}
+
+.login,
+.signup {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .login {
-  font-size: 1rem;
-  text-decoration: none;
-  color: #fff;
   background-color: #007bff;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.signup {
-  font-size: 1rem;
-  text-decoration: none;
-  color: #fff;
-  background-color: #007bff;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.signup:hover {
-  background-color: #0056b3;
+  color: white;
 }
 
 .login:hover {
   background-color: #0056b3;
+}
+
+.signup {
+  background-color: #28a745;
+  color: white;
+}
+
+.signup:hover {
+  background-color: #218838;
+}
+
+.profileMenu {
+  position: relative;
+}
+
+.profileButton {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.profileButton:hover {
+  color: #007bff;
+}
+
+.profileDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  margin: 5px 0;
+  padding: 10px 0;
+  min-width: 150px;
+  z-index: 10;
+}
+
+.profileDropdown li {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.profileDropdown li:hover {
+  background-color: #f8f9fa;
+}
+
+.logoutButton {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.logoutButton:hover {
+  background-color: #d32f2f;
 }

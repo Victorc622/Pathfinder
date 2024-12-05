@@ -7,23 +7,12 @@ class Destination(db.Model):
         __table_args__ = {'schema': SCHEMA}
 
     id = db.Column(db.Integer, primary_key=True)
-    itinerary_id = db.Column(
-        db.Integer, 
-        db.ForeignKey(add_prefix_for_prod('itineraries.id')), 
-        nullable=False
-    )
+    itinerary_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('itineraries.id')), nullable=False)
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(500), nullable=True)
 
-    itinerary = db.relationship(
-        'Itinerary', 
-        back_populates='destinations'
-    )
-    activities = db.relationship(
-        'Activity', 
-        back_populates='destination', 
-        cascade="all, delete-orphan"
-    )
+    itinerary = db.relationship('Itinerary', back_populates='destinations')
+    activities = db.relationship('Activity', back_populates='destination', cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
