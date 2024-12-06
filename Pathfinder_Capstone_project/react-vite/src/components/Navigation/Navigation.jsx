@@ -51,9 +51,6 @@ const Navigation = () => {
       <nav className={styles.nav}>
         <ul>
           <li>
-            <Link to="/trips">My Trips</Link>
-          </li>
-          <li>
             <Link to="/itinerary">Itinerary</Link>
           </li>
           <li>

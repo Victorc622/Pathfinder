@@ -31,6 +31,29 @@ const Itinerary = () => {
     navigate("/create-itinerary");
   };
 
+  const handleEditRedirect = (id) => {
+    navigate(`/edit-itinerary/${id}`);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`/api/itineraries/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        // Update state to remove deleted itinerary
+        setItineraries(itineraries.filter((itinerary) => itinerary.id !== id));
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to delete itinerary: ${errorData.error || "Unknown error"}`);
+      }
+    } catch (err) {
+      alert(`Error deleting itinerary: ${err.message}`);
+    }
+  };
+
   if (loading) {
     return <p>Loading itineraries...</p>;
   }
@@ -49,6 +72,18 @@ const Itinerary = () => {
               <h3>{itinerary.name}</h3>
               <p>{`Start: ${itinerary.start_date}`}</p>
               <p>{`End: ${itinerary.end_date}`}</p>
+              <button
+                onClick={() => handleEditRedirect(itinerary.id)}
+                style={{ margin: "5px", backgroundColor: "blue", color: "white" }}
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(itinerary.id)}
+                style={{ margin: "5px", backgroundColor: "red", color: "white" }}
+              >
+                Delete
+              </button>
             </li>
           ))}
         </ul>

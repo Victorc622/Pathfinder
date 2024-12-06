@@ -5,8 +5,14 @@ from datetime import datetime
 
 itinerary_routes = Blueprint('itineraries', __name__)
 
+def validate_date(date_str, format='%m-%d-%Y'):
+    try:
+        return datetime.strptime(date_str, format).date()
+    except ValueError:
+        return None
+
 # Get all itineraries for the logged-in user
-@itinerary_routes.route('/')
+@itinerary_routes.route('/', methods=['GET'])
 @login_required
 def get_itineraries():
     itineraries = Itinerary.query.filter_by(user_id=current_user.id).all()
@@ -18,86 +24,81 @@ def get_itineraries():
 def create_itinerary():
     data = request.json
 
-    # Validate input data
-    if not data.get('name') or not data.get('start_date') or not data.get('end_date'):
-        return jsonify({'error': 'Missing required fields: name, start_date, or end_date'}), 400
+    name = data.get('name')
+    start_date_str = data.get('start_date')
+    end_date_str = data.get('end_date')
 
-    try:
-        try:
-            start_date = datetime.strptime(data['start_date'], '%m-%d-%Y').date()
-            end_date = datetime.strptime(data['end_date'], '%m-%d-%Y').date()
-        except ValueError:
-            return jsonify({'error': 'Invalid date format. Use MM-DD-YYYY.'}), 400
-        if start_date > end_date:
-            return jsonify({'error': 'Start date cannot be after end date.'}), 400
+    if not name or not start_date_str or not end_date_str:
+        return jsonify({"error": "Missing required fields"}), 400
 
-        # Create a new itinerary
-        new_itinerary = Itinerary(
-            user_id=current_user.id,
-            name=data['name'],
-            start_date=start_date,
-            end_date=end_date
-        )
-        db.session.add(new_itinerary)
-        db.session.commit()
+    start_date = validate_date(start_date_str)
+    end_date = validate_date(end_date_str)
 
-        activities_data = data.get('activities', [])
-        for activity in activities_data:
-            if not activity.get('name') or not activity.get('time'):
-                continue
-            new_activity = Activity(
-                name=activity['name'],
-                time=activity['time'],
-                itinerary_id=new_itinerary.id
-            )
-            db.session.add(new_activity)
+    if not start_date or not end_date:
+        return jsonify({"error": "Invalid date format"}), 400
 
-        db.session.commit()
+    new_itinerary = Itinerary(
+        name=name,
+        start_date=start_date,
+        end_date=end_date,
+        user_id=current_user.id
+    )
 
-        return jsonify(new_itinerary.to_dict()), 201
+    db.session.add(new_itinerary)
+    db.session.commit()
 
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+    return jsonify(new_itinerary.to_dict()), 201
 
-# Update an itinerary
+# Get a single itinerary by ID
+@itinerary_routes.route('/<int:id>', methods=['GET'])
+@login_required
+def get_itinerary(id):
+    itinerary = Itinerary.query.filter_by(id=id, user_id=current_user.id).first()
+    if not itinerary:
+        return jsonify({"error": "Itinerary not found"}), 404
+    return jsonify(itinerary.to_dict()), 200
+
+# Update an existing itinerary
 @itinerary_routes.route('/<int:id>', methods=['PUT'])
 @login_required
 def update_itinerary(id):
+    itinerary = Itinerary.query.filter_by(id=id, user_id=current_user.id).first()
+
+    if not itinerary:
+        return jsonify({"error": "Itinerary not found"}), 404
+
     data = request.json
-    itinerary = Itinerary.query.get(id)
+    name = data.get('name')
+    start_date_str = data.get('start_date')
+    end_date_str = data.get('end_date')
 
-    if not itinerary or itinerary.user_id != current_user.id:
-        return jsonify({'error': 'Itinerary not found or unauthorized'}), 404
+    if not name or not start_date_str or not end_date_str:
+        return jsonify({"error": "Missing required fields"}), 400
 
-    try:
-        itinerary.name = data.get('name', itinerary.name)
-        if 'start_date' in data:
-            itinerary.start_date = datetime.strptime(data['start_date'], '%m-%d-%Y').date()
-        if 'end_date' in data:
-            itinerary.end_date = datetime.strptime(data['end_date'], '%m-%d-%Y').date()
+    start_date = validate_date(start_date_str)
+    end_date = validate_date(end_date_str)
 
-        db.session.commit()
-        return jsonify(itinerary.to_dict()), 200
+    if not start_date or not end_date:
+        return jsonify({"error": "Invalid date format"}), 400
 
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+    itinerary.name = name
+    itinerary.start_date = start_date
+    itinerary.end_date = end_date
 
-# Delete an itinerary
+    db.session.commit()
+
+    return jsonify(itinerary.to_dict()), 200
+
+# Delete an existing itinerary
 @itinerary_routes.route('/<int:id>', methods=['DELETE'])
 @login_required
 def delete_itinerary(id):
-    itinerary = Itinerary.query.get(id)
+    itinerary = Itinerary.query.filter_by(id=id, user_id=current_user.id).first()
 
-    if not itinerary or itinerary.user_id != current_user.id:
-        return jsonify({'error': 'Itinerary not found or unauthorized'}), 404
+    if not itinerary:
+        return jsonify({"error": "Itinerary not found"}), 404
 
-    try:
-        db.session.delete(itinerary)
-        db.session.commit()
-        return jsonify({'message': 'Itinerary deleted successfully'}), 200
+    db.session.delete(itinerary)
+    db.session.commit()
 
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+    return jsonify({"message": "Itinerary deleted successfully"}), 200

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./CreateItinerary.module.css";
 
 const CreateItinerary = () => {
-  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [activities, setActivities] = useState([]);
@@ -31,7 +31,7 @@ const CreateItinerary = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title,
+          name,
           start_date: formattedStartDate,
           end_date: formattedEndDate,
           activities,
@@ -59,15 +59,15 @@ const CreateItinerary = () => {
       <h2 className={styles.title}>Create an Itinerary</h2>
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.inputGroup}>
-          <label htmlFor="title" className={styles.label}>
-            Itinerary Title:
+          <label htmlFor="name" className={styles.label}>
+            Itinerary Name:
           </label>
           <input
             type="text"
-            id="title"
+            id="name"
             className={styles.input}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
           />
         </div>

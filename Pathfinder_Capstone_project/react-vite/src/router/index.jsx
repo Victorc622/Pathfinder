@@ -8,6 +8,7 @@ import CreateItinerary from '../components/CreateItineraryComponent/CreateItiner
 import Destination from '../components/DestinationComponent/Destination';
 import Collaboration from '../components/CollaborationComponent/Collaboration';
 import Activities from '../components/ActivitiesComponent/Activities';
+import EditItinerary from '../components/EditItinerary/EditItinerary';
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
       {
         path: "create-itinerary",
         element: <CreateItinerary />,
+      },
+      {
+        path: "/edit-itinerary/:id",
+        element: <EditItinerary />,
       },
       {
         path: "destinations",
