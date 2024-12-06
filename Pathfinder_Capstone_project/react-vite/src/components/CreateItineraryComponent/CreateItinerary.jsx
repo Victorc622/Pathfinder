@@ -7,6 +7,7 @@ const CreateItinerary = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [activities, setActivities] = useState([]);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const addActivity = () => {
@@ -18,8 +19,24 @@ const CreateItinerary = () => {
     return `${month}-${day}-${year}`;
   };
 
+  const validateForm = () => {
+    if (!name.trim()) return "Itinerary name is required.";
+    if (name.length > 50) return "Itinerary name cannot exceed 50 characters.";
+    if (!startDate) return "Start date is required.";
+    if (!endDate) return "End date is required.";
+    if (new Date(startDate) > new Date(endDate))
+      return "Start date cannot be after the end date.";
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     const formattedStartDate = formatToMMDDYYYY(startDate);
     const formattedEndDate = formatToMMDDYYYY(endDate);
@@ -41,10 +58,10 @@ const CreateItinerary = () => {
       if (response.ok) {
         navigate("/");
       } else {
-        console.error("Error creating itinerary");
+        setError("Error creating itinerary.");
       }
     } catch (error) {
-      console.error("Error creating itinerary", error);
+      setError("Error creating itinerary. Please try again.");
     }
   };
 
@@ -57,6 +74,7 @@ const CreateItinerary = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Create an Itinerary</h2>
+      {error && <div className={styles.errorMessage}>{error}</div>}
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.inputGroup}>
           <label htmlFor="name" className={styles.label}>
@@ -68,6 +86,8 @@ const CreateItinerary = () => {
             className={styles.input}
             value={name}
             onChange={(e) => setName(e.target.value)}
+            maxLength={50}
+            placeholder="Enter itinerary name (max 50 characters)"
             required
           />
         </div>

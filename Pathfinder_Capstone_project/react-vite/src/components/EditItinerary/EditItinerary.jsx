@@ -10,9 +10,9 @@ const EditItinerary = () => {
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  // Helper function to format dates as MM-DD-YYYY
   const formatDate = (date) => {
     const d = new Date(date);
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -38,7 +38,7 @@ const EditItinerary = () => {
         setStartDate(data.start_date);
         setEndDate(data.end_date);
       } catch (err) {
-        setError(err.message || "Something went wrong");
+        setError(err.message || "Something went wrong while fetching itinerary");
       } finally {
         setLoading(false);
       }
@@ -47,16 +47,23 @@ const EditItinerary = () => {
     fetchItinerary();
   }, [id]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  // Form Validation
+  const validateForm = () => {
+    if (!name.trim()) return "Name is required";
+    if (name.length > 50) return "Name cannot exceed 50 characters";
+    if (!startDate || !endDate) return "Start and End dates are required";
+    if (new Date(startDate) > new Date(endDate)) return "Start date cannot be after the End date";
+    return null;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     try {
       const formattedStartDate = formatDate(startDate);
       const formattedEndDate = formatDate(endDate);
@@ -78,19 +85,31 @@ const EditItinerary = () => {
         throw new Error(`Failed to update itinerary: ${response.status}`);
       }
 
-      navigate("/itinerary");
+      setSuccess(true);
+      setTimeout(() => navigate("/itinerary"), 1500);
     } catch (err) {
       setError(err.message || "Failed to save changes");
     }
   };
 
+  if (loading) {
+    return <div className={styles.loading}>Loading...</div>;
+  }
+
   return (
     <div className={styles.editItinerary}>
       <h1>Edit Itinerary</h1>
+      {error && <div className={styles.error}>{error}</div>}
+      {success && <div className={styles.success}>Itinerary updated successfully!</div>}
       <form onSubmit={handleSubmit}>
         <label>
           Name:
-          <input value={name} onChange={(e) => setName(e.target.value)} />
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter itinerary name (max 50 characters)"
+            maxLength={50}
+          />
         </label>
         <label>
           Start Date:

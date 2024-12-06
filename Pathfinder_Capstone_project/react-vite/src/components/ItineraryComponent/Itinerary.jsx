@@ -43,7 +43,7 @@ const Itinerary = () => {
       });
 
       if (response.ok) {
-        // Update state to remove deleted itinerary
+
         setItineraries(itineraries.filter((itinerary) => itinerary.id !== id));
       } else {
         const errorData = await response.json();

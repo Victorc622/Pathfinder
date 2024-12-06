@@ -6,6 +6,7 @@ const AddDestinationForm = ({ itineraries, onSubmit, onCancel, initialData }) =>
   const [description, setDescription] = useState(initialData?.description || "");
   const [image, setImage] = useState(initialData?.image || "");
   const [itineraryId, setItineraryId] = useState(initialData?.itinerary_id || "");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (itineraries.length > 0 && !initialData) {
@@ -13,10 +14,19 @@ const AddDestinationForm = ({ itineraries, onSubmit, onCancel, initialData }) =>
     }
   }, [itineraries, initialData]);
 
+  const validateForm = () => {
+    if (!name.trim()) return "Name is required.";
+    if (name.length > 50) return "Name cannot exceed 50 characters.";
+    if (description.length > 100) return "Description cannot exceed 100 characters.";
+    if (!itineraryId) return "An itinerary must be selected.";
+    return null;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name.trim()) {
-      alert("Name is required.");
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -31,6 +41,7 @@ const AddDestinationForm = ({ itineraries, onSubmit, onCancel, initialData }) =>
   return (
     <div className="add-destination-form">
       <h2>{initialData ? "Edit Destination" : "Add Destination"}</h2>
+      {error && <div className="errorMessage">{error}</div>}
       <form onSubmit={handleSubmit}>
         <label>
           Name:
@@ -38,6 +49,8 @@ const AddDestinationForm = ({ itineraries, onSubmit, onCancel, initialData }) =>
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            maxLength={50}
+            placeholder="Enter destination name (max 50 characters)"
             required
           />
         </label>
@@ -46,6 +59,8 @@ const AddDestinationForm = ({ itineraries, onSubmit, onCancel, initialData }) =>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            maxLength={100}
+            placeholder="Enter destination description (max 100 characters)"
           />
         </label>
         <label>
@@ -54,6 +69,7 @@ const AddDestinationForm = ({ itineraries, onSubmit, onCancel, initialData }) =>
             type="text"
             value={image}
             onChange={(e) => setImage(e.target.value)}
+            placeholder="Enter image URL"
           />
         </label>
         <label>
