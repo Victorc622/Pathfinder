@@ -1,57 +1,44 @@
 import React, { useState, useEffect } from "react";
 import "./AddDestinationForm.css";
 
-const AddDestinationForm = ({ itineraries, onSubmit, onCancel }) => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [itineraryId, setItineraryId] = useState("");
-  const [error, setError] = useState("");
+const AddDestinationForm = ({ itineraries, onSubmit, onCancel, initialData }) => {
+  const [name, setName] = useState(initialData?.name || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [image, setImage] = useState(initialData?.image || "");
+  const [itineraryId, setItineraryId] = useState(initialData?.itinerary_id || "");
 
   useEffect(() => {
-    if (itineraries.length > 0) {
+    if (itineraries.length > 0 && !initialData) {
       setItineraryId(itineraries[0].id);
     }
-  }, [itineraries]);
+  }, [itineraries, initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!name.trim()) {
-      setError("Destination name is required.");
-      return;
-    }
-    if (!itineraryId) {
-      setError("Please select an itinerary.");
+      alert("Name is required.");
       return;
     }
 
-    const newDestination = {
+    onSubmit({
       name: name.trim(),
       description: description.trim(),
+      image: image.trim(),
       itinerary_id: itineraryId,
-    };
-
-    onSubmit(newDestination);
-
-    setName("");
-    setDescription("");
-    setItineraryId(itineraries.length > 0 ? itineraries[0].id : "");
-    setError("");
+    });
   };
 
   return (
     <div className="add-destination-form">
-      <h2>Add Destination</h2>
-      {error && <p className="error-message">{error}</p>}
+      <h2>{initialData ? "Edit Destination" : "Add Destination"}</h2>
       <form onSubmit={handleSubmit}>
         <label>
-          Destination Name:
+          Name:
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            placeholder="Enter destination name"
           />
         </label>
         <label>
@@ -59,7 +46,14 @@ const AddDestinationForm = ({ itineraries, onSubmit, onCancel }) => {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter destination description (optional)"
+          />
+        </label>
+        <label>
+          Image URL:
+          <input
+            type="text"
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
           />
         </label>
         <label>
@@ -69,22 +63,16 @@ const AddDestinationForm = ({ itineraries, onSubmit, onCancel }) => {
             onChange={(e) => setItineraryId(e.target.value)}
             required
           >
-            {itineraries.length > 0 ? (
-              itineraries.map((itinerary) => (
-                <option key={itinerary.id} value={itinerary.id}>
-                  {itinerary.name}
-                </option>
-              ))
-            ) : (
-              <option value="">No itineraries available</option>
-            )}
+            {itineraries.map((itinerary) => (
+              <option key={itinerary.id} value={itinerary.id}>
+                {itinerary.name}
+              </option>
+            ))}
           </select>
         </label>
         <div className="form-actions">
-          <button type="submit" className="submit-button">
-            Add Destination
-          </button>
-          <button type="button" onClick={onCancel} className="cancel-button">
+          <button type="submit">{initialData ? "Update" : "Add"}</button>
+          <button type="button" onClick={onCancel}>
             Cancel
           </button>
         </div>

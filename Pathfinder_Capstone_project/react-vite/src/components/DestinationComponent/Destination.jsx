@@ -4,6 +4,7 @@ import AddDestinationForm from "./AddDestinationForm";
 const Destination = ({ itineraryId }) => {
   const [destinations, setDestinations] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [currentDestination, setCurrentDestination] = useState(null); // For editing
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -78,6 +79,41 @@ const Destination = ({ itineraryId }) => {
     }
   };
 
+  const updateDestination = async (updatedDestination) => {
+    try {
+      const response = await fetch(`/api/destinations/${currentDestination.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedDestination),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update destination");
+      }
+
+      const updatedData = await response.json();
+      setDestinations((prev) =>
+        prev.map((destination) =>
+          destination.id === updatedData.id ? updatedData : destination
+        )
+      );
+
+      setCurrentDestination(null);
+      setShowForm(false);
+    } catch (err) {
+      console.error("Error updating destination:", err);
+      setError(err.message);
+    }
+  };
+
+  const handleEditClick = (destination) => {
+    setCurrentDestination(destination);
+    setShowForm(true);
+  };
+
   if (loading) {
     return <p>Loading destinations...</p>;
   }
@@ -94,9 +130,17 @@ const Destination = ({ itineraryId }) => {
       </button>
       {showForm && (
         <AddDestinationForm
-          itineraries={[{ id: itineraryId, name: "Current Itinerary" }]}
-          onSubmit={(data) => createDestination({ ...data, itinerary_id: itineraryId })}
-          onCancel={() => setShowForm(false)}
+          itineraries={[{ id: itineraryId, name: "Current Itinerary" }]} // Pass current itinerary
+          onSubmit={
+            currentDestination
+              ? (data) => updateDestination({ ...data, itinerary_id: itineraryId })
+              : (data) => createDestination({ ...data, itinerary_id: itineraryId })
+          }
+          onCancel={() => {
+            setShowForm(false);
+            setCurrentDestination(null);
+          }}
+          initialData={currentDestination} // Pass initial data for editing
         />
       )}
       {destinations.length === 0 ? (
@@ -112,6 +156,12 @@ const Destination = ({ itineraryId }) => {
                 className="delete-button"
               >
                 Delete
+              </button>
+              <button
+                onClick={() => handleEditClick(destination)}
+                className="edit-button"
+              >
+                Edit
               </button>
             </li>
           ))}

@@ -77,3 +77,35 @@ def delete_destination(destination_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Failed to delete destination: {str(e)}'}), 500
+    
+@destination_routes.route('/<int:destination_id>', methods=['PUT'])
+@login_required
+def update_destination(destination_id):
+    """
+    Updates a destination if the user is authorized to do so.
+    """
+    if not request.is_json:
+        return jsonify({'error': 'Invalid content type, expected JSON'}), 400
+
+    data = request.json
+    try:
+    
+        destination = Destination.query.get(destination_id)
+        if not destination:
+            return jsonify({'error': 'Destination not found'}), 404
+
+    
+        itinerary = Itinerary.query.get(destination.itinerary_id)
+        if not itinerary or itinerary.user_id != current_user.id:
+            return jsonify({'error': 'Unauthorized or itinerary not found'}), 403
+
+    
+        destination.name = data.get('name', destination.name)
+        destination.description = data.get('description', destination.description)
+
+        db.session.commit()
+
+        return jsonify(destination.to_dict()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Failed to update destination: {str(e)}'}), 500
