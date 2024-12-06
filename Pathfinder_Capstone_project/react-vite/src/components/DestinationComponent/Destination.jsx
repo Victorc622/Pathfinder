@@ -4,7 +4,7 @@ import AddDestinationForm from "./AddDestinationForm";
 const Destination = ({ itineraryId }) => {
   const [destinations, setDestinations] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [currentDestination, setCurrentDestination] = useState(null); // For editing
+  const [currentDestination, setCurrentDestination] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -130,7 +130,7 @@ const Destination = ({ itineraryId }) => {
       </button>
       {showForm && (
         <AddDestinationForm
-          itineraries={[{ id: itineraryId, name: "Current Itinerary" }]} // Pass current itinerary
+          itineraries={[{ id: itineraryId, name: "Current Itinerary" }]}
           onSubmit={
             currentDestination
               ? (data) => updateDestination({ ...data, itinerary_id: itineraryId })
@@ -140,7 +140,7 @@ const Destination = ({ itineraryId }) => {
             setShowForm(false);
             setCurrentDestination(null);
           }}
-          initialData={currentDestination} // Pass initial data for editing
+          initialData={currentDestination}
         />
       )}
       {destinations.length === 0 ? (
