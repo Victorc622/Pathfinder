@@ -1,7 +1,6 @@
-from flask import Blueprint, request, session
+from flask import Blueprint, request, session, jsonify
 from app.models import User, db
-from app.forms import LoginForm
-from app.forms import SignUpForm
+from app.forms import LoginForm, SignUpForm
 from flask_login import current_user, login_user, logout_user, login_required
 
 auth_routes = Blueprint('auth', __name__)
@@ -39,21 +38,33 @@ def logout():
 @auth_routes.route('/signup', methods=['POST'])
 def sign_up():
     """
-    Creates a new user and logs them in
+    Creates a new user and logs them in, with feedback for duplicate credentials
     """
     form = SignUpForm()
     form['csrf_token'].data = request.cookies['csrf_token']
+
+    if User.query.filter_by(email=form.data['email']).first():
+        return jsonify({'errors': {'email': 'Email is already in use'}}), 400
+
+    if User.query.filter_by(username=form.data['username']).first():
+        return jsonify({'errors': {'username': ['Username is already in use.']}}), 400
+
     if form.validate_on_submit():
-        user = User(
-            username=form.data['username'],
-            email=form.data['email'],
-            password=form.data['password']
-        )
-        db.session.add(user)
-        db.session.commit()
-        login_user(user)
-        return user.to_dict()
-    return form.errors, 401
+        try:
+            user = User(
+                username=form.data['username'],
+                email=form.data['email'],
+                password=form.data['password']
+            )
+            db.session.add(user)
+            db.session.commit()
+            login_user(user)
+            return user.to_dict()
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'Failed to create user: {str(e)}'}), 500
+
+    return jsonify({'errors': form.errors}), 401
 
 @auth_routes.route('/unauthorized')
 def unauthorized():

@@ -44,17 +44,17 @@ export const thunkSignup = (user) => async (dispatch) => {
   const response = await fetch("/api/auth/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(user)
+    body: JSON.stringify(user),
   });
 
-  if(response.ok) {
+  if (response.ok) {
     const data = await response.json();
     dispatch(setUser(data));
   } else if (response.status < 500) {
     const errorMessages = await response.json();
-    return errorMessages
+    return { errors: errorMessages.errors || { general: "An error occurred" } };
   } else {
-    return { server: "Something went wrong. Please try again" }
+    return { errors: { server: "Something went wrong. Please try again" } };
   }
 };
 
