@@ -54,7 +54,7 @@ const Navigation = () => {
             <Link to="/itinerary">Itinerary</Link>
           </li>
           <li>
-            <Link to="/destinations">Destinations</Link>
+            <Link to="/destinations">Destination</Link>
           </li>
           <li>
             <Link to="/collaboration">Collaboration</Link>

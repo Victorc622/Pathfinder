@@ -9,6 +9,7 @@ from .api.user_routes import user_routes
 from .api.auth_routes import auth_routes
 from .api.itinerary_routes import itinerary_routes
 from .api.activity_routes import activities_routes
+from .api.destination_routes import destination_routes
 from .api.search_routes import search_routes
 from .seeds import seed_commands
 from .config import Config
@@ -37,6 +38,7 @@ app.register_blueprint(auth_routes, url_prefix="/api/auth")
 app.register_blueprint(itinerary_routes, url_prefix="/api/itineraries")
 app.register_blueprint(activities_routes, url_prefix="/api/activities")
 app.register_blueprint(search_routes, url_prefix="/api/search")
+app.register_blueprint(destination_routes, url_prefix='/api/destinations')
 
 # Initialize the database
 db.init_app(app)

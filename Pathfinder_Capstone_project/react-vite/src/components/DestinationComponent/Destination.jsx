@@ -10,8 +10,19 @@ const Destination = ({ itineraryId }) => {
 
   useEffect(() => {
     const fetchDestinations = async () => {
+      if (!itineraryId) {
+        setError("No itinerary selected");
+        return;
+      }
+
       try {
-        const response = await fetch(`/api/destinations/itinerary/${itineraryId}`);
+        const response = await fetch(`/api/destinations/itinerary/${itineraryId}`, {
+          credentials: "include",
+        });
+        if (response.status === 404) {
+          setError("Itinerary not found or unauthorized");
+          return;
+        }
         if (!response.ok) {
           throw new Error("Failed to fetch destinations");
         }
@@ -23,15 +34,15 @@ const Destination = ({ itineraryId }) => {
       }
     };
 
-    if (itineraryId) {
-      fetchDestinations();
-    }
+    fetchDestinations();
   }, [itineraryId]);
 
   useEffect(() => {
     const fetchItineraries = async () => {
       try {
-        const response = await fetch("/api/itineraries");
+        const response = await fetch("/api/itineraries", {
+          credentials: "include",
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch itineraries");
         }
@@ -46,15 +57,22 @@ const Destination = ({ itineraryId }) => {
     fetchItineraries();
   }, []);
 
-  // Add a new destination
   const addDestination = async (destination) => {
+    if (!itineraryId) {
+      setError("No itinerary selected");
+      return;
+    }
+
+    const payload = { ...destination, itinerary_id: itineraryId };
+
     try {
+      console.log("Adding destination:", payload);
       const response = await fetch("/api/destinations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(destination),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -80,9 +98,7 @@ const Destination = ({ itineraryId }) => {
       {showForm && (
         <AddDestinationForm
           itineraries={itineraries}
-          onSubmit={(data) =>
-            addDestination({ ...data, itinerary_id: itineraryId })
-          }
+          onSubmit={(data) => addDestination(data)}
           onCancel={() => setShowForm(false)}
         />
       )}
@@ -90,11 +106,6 @@ const Destination = ({ itineraryId }) => {
         {destinations.length > 0 ? (
           destinations.map((item) => (
             <div key={item.id} className="destination-card">
-              <img
-                src={item?.image || "/default-image.jpg"}
-                alt={item?.name || "Destination"}
-                className="destination-image"
-              />
               <h3>{item?.name || "Unnamed Destination"}</h3>
               <p>{item?.description || "No description available."}</p>
             </div>

@@ -9,6 +9,7 @@ import Destination from '../components/DestinationComponent/Destination';
 import Collaboration from '../components/CollaborationComponent/Collaboration';
 import Activities from '../components/ActivitiesComponent/Activities';
 import EditItinerary from '../components/EditItinerary/EditItinerary';
+import ItineraryManager from '../components/DestinationComponent/ItineraryManager';
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
       {
         path: "signup",
         element: <SignupFormPage />,
+      },
+      {
+        path: "destinations",
+        element: <ItineraryManager />,
       },
       {
         path: "itinerary",

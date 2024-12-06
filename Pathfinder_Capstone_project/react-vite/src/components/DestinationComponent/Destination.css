@@ -10,12 +10,6 @@
   overflow: hidden;
 }
 
-.destination-image {
-  width: 40%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .destination-info {
   padding: 20px;
   width: 60%;
