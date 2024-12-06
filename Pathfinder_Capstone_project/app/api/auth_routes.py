@@ -20,13 +20,19 @@ def login():
     Logs a user in
     """
     form = LoginForm()
-
     form['csrf_token'].data = request.cookies['csrf_token']
+
     if form.validate_on_submit():
         user = User.query.filter(User.email == form.data['email']).first()
-        login_user(user)
-        return user.to_dict()
-    return form.errors, 401
+        if user and user.check_password(form.data['password']):
+            login_user(user)
+            return user.to_dict()
+        elif user:
+            return jsonify({'errors': {'password': ['Incorrect password.']}}), 401
+        else:
+            return jsonify({'errors': {'email': ['Email not found.']}}), 401
+
+    return jsonify({'errors': form.errors}), 401
 
 @auth_routes.route('/logout', methods=['POST'])
 def logout():
