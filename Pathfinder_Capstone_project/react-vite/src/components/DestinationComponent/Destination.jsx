@@ -1,125 +1,125 @@
 import React, { useState, useEffect } from "react";
 import AddDestinationForm from "./AddDestinationForm";
-import "./Destination.css";
 
 const Destination = ({ itineraryId }) => {
-  const [showForm, setShowForm] = useState(false);
   const [destinations, setDestinations] = useState([]);
-  const [itineraries, setItineraries] = useState([]);
+  const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDestinations = async () => {
-      if (!itineraryId) {
-        setError("No itinerary selected");
-        return;
-      }
-
       try {
         const response = await fetch(`/api/destinations/itinerary/${itineraryId}`, {
           credentials: "include",
         });
-        if (response.status === 404) {
-          setError("Itinerary not found or unauthorized");
-          return;
-        }
         if (!response.ok) {
           throw new Error("Failed to fetch destinations");
         }
         const data = await response.json();
         setDestinations(data);
-      } catch (error) {
-        console.error("Error fetching destinations:", error);
-        setError(error.message);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchDestinations();
+    if (itineraryId) {
+      fetchDestinations();
+    }
   }, [itineraryId]);
 
-  useEffect(() => {
-    const fetchItineraries = async () => {
-      try {
-        const response = await fetch("/api/itineraries", {
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch itineraries");
-        }
-        const data = await response.json();
-        setItineraries(data);
-      } catch (error) {
-        console.error("Error fetching itineraries:", error);
-        setError(error.message);
-      }
-    };
-
-    fetchItineraries();
-  }, []);
-
-  const addDestination = async (destination) => {
-    if (!itineraryId) {
-      setError("No itinerary selected");
+  const deleteDestination = async (destinationId) => {
+    if (!window.confirm("Are you sure you want to delete this destination?")) {
       return;
     }
 
-    const payload = { ...destination, itinerary_id: itineraryId };
-
     try {
-      console.log("Adding destination:", payload);
-      const response = await fetch("/api/destinations", {
+      const response = await fetch(`/api/destinations/${destinationId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete destination");
+      }
+
+      // Remove the deleted destination from the state
+      setDestinations((prev) =>
+        prev.filter((destination) => destination.id !== destinationId)
+      );
+    } catch (err) {
+      console.error("Error deleting destination:", err);
+      setError(err.message);
+    }
+  };
+
+  const createDestination = async (newDestination) => {
+    try {
+      const response = await fetch(`/api/destinations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(newDestination),
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error("Failed to add destination");
+        throw new Error("Failed to create destination");
       }
 
-      const newDestination = await response.json();
-      setDestinations((prev) => [...prev, newDestination]);
+      const createdDestination = await response.json();
+      setDestinations((prev) => [...prev, createdDestination]);
       setShowForm(false);
-    } catch (error) {
-      console.error("Error adding destination:", error);
-      setError(error.message);
+    } catch (err) {
+      console.error("Error creating destination:", err);
+      setError(err.message);
     }
   };
 
+  if (loading) {
+    return <p>Loading destinations...</p>;
+  }
+
+  if (error) {
+    return <p style={{ color: "red" }}>{error}</p>;
+  }
+
   return (
-    <div className="destination-container">
+    <div>
       <h2>Destinations</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
       <button onClick={() => setShowForm(true)} className="create-button">
-        Add Destination
+        Create Destination
       </button>
       {showForm && (
         <AddDestinationForm
-          itineraries={itineraries}
-          onSubmit={(data) => addDestination(data)}
+          itineraries={[{ id: itineraryId, name: "Current Itinerary" }]} // Pass current itinerary
+          onSubmit={(data) => createDestination({ ...data, itinerary_id: itineraryId })}
           onCancel={() => setShowForm(false)}
         />
       )}
-      <div className="destination-list">
-        {destinations.length > 0 ? (
-          destinations.map((item) => (
-            <div key={item.id} className="destination-card">
-              <h3>{item?.name || "Unnamed Destination"}</h3>
-              <p>{item?.description || "No description available."}</p>
-            </div>
-          ))
-        ) : (
-          <p>No destinations available.</p>
-        )}
-      </div>
+      {destinations.length === 0 ? (
+        <p>No destinations available for this itinerary.</p>
+      ) : (
+        <ul>
+          {destinations.map((destination) => (
+            <li key={destination.id}>
+              <h3>{destination.name}</h3>
+              <p>{destination.description}</p>
+              <button
+                onClick={() => deleteDestination(destination.id)}
+                className="delete-button"
+              >
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
-};
-
-Destination.defaultProps = {
-  itineraryId: null,
 };
 
 export default Destination;
