@@ -45,7 +45,6 @@ const Destination = ({ itineraryId }) => {
         throw new Error("Failed to delete destination");
       }
 
-      // Remove the deleted destination from the state
       setDestinations((prev) =>
         prev.filter((destination) => destination.id !== destinationId)
       );
@@ -95,7 +94,7 @@ const Destination = ({ itineraryId }) => {
       </button>
       {showForm && (
         <AddDestinationForm
-          itineraries={[{ id: itineraryId, name: "Current Itinerary" }]} // Pass current itinerary
+          itineraries={[{ id: itineraryId, name: "Current Itinerary" }]}
           onSubmit={(data) => createDestination({ ...data, itinerary_id: itineraryId })}
           onCancel={() => setShowForm(false)}
         />
