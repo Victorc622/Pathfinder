@@ -1,111 +1,76 @@
-from flask import Blueprint, request, jsonify
-from app.models import Destination, Itinerary, db
-from flask_login import current_user, login_required
+from flask import Blueprint, jsonify, request, abort
+from flask_login import login_required, current_user
+from app.models import Destination, Trip, db
 
 destination_routes = Blueprint('destinations', __name__)
 
-@destination_routes.route('/itinerary/<int:itinerary_id>', methods=['GET'])
+@destination_routes.route('/<int:trip_id>', methods=['GET'])
 @login_required
-def get_destinations(itinerary_id):
-    try:
-        itinerary = Itinerary.query.get(itinerary_id)
-        if not itinerary or itinerary.user_id != current_user.id:
-            return jsonify({'error': 'Itinerary not found or unauthorized'}), 404
-
-        destinations = Destination.query.filter_by(itinerary_id=itinerary_id).all()
-        return jsonify([destination.to_dict() for destination in destinations]), 200
-    except Exception as e:
-        return jsonify({'error': f'Failed to fetch destinations: {str(e)}'}), 500
-
-@destination_routes.route('/', methods=['GET'])
-@login_required
-def get_all_destinations():
-    try:
-        default_itinerary = Itinerary.query.filter_by(user_id=current_user.id).first()
-        if not default_itinerary:
-            return jsonify({'error': 'No itineraries found'}), 404
-
-        destinations = Destination.query.filter_by(itinerary_id=default_itinerary.id).all()
-        return jsonify([destination.to_dict() for destination in destinations]), 200
-    except Exception as e:
-        return jsonify({'error': f'Failed to fetch destinations: {str(e)}'}), 500
-
-@destination_routes.route('/', methods=['POST'])
-@login_required
-def create_destination():
-    if not request.is_json:
-        return jsonify({'error': 'Invalid content type, expected JSON'}), 400
-
-    data = request.json
-    try:
-        itinerary = Itinerary.query.get(data.get('itinerary_id'))
-        if not itinerary or itinerary.user_id != current_user.id:
-            return jsonify({'error': 'Unauthorized or itinerary not found'}), 403
-
-        destination = Destination(
-            name=data.get('name'),
-            description=data.get('description'),
-            itinerary_id=itinerary.id
-        )
-        db.session.add(destination)
-        db.session.commit()
-
-        return jsonify(destination.to_dict()), 201
-    except Exception as e:
-        return jsonify({'error': f'Failed to create destination: {str(e)}'}), 500
-    
-@destination_routes.route('/<int:destination_id>', methods=['DELETE'])
-@login_required
-def delete_destination(destination_id):
+def get_destinations(trip_id):
     """
-    Deletes a destination if the user is authorized to do so.
+    Get all destinations for a trip.
     """
-    try:
-        
-        destination = Destination.query.get(destination_id)
-        if not destination:
-            return jsonify({'error': 'Destination not found'}), 404
+    trip = Trip.query.get(trip_id)
+    if not trip or trip.created_by != current_user.id:
+        abort(404, description="Trip not found")
 
-        itinerary = Itinerary.query.get(destination.itinerary_id)
-        if not itinerary or itinerary.user_id != current_user.id:
-            return jsonify({'error': 'Unauthorized or itinerary not found'}), 403
+    destinations = Destination.query.filter_by(trip_id=trip_id).all()
+    return {'destinations': [dest.to_dict() for dest in destinations]}
 
-        db.session.delete(destination)
-        db.session.commit()
 
-        return jsonify({'message': 'Destination deleted successfully'}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': f'Failed to delete destination: {str(e)}'}), 500
-    
-@destination_routes.route('/<int:destination_id>', methods=['PUT'])
+@destination_routes.route('/<int:trip_id>', methods=['POST'])
 @login_required
-def update_destination(destination_id):
+def create_destination(trip_id):
     """
-    Updates a destination if the user is authorized to do so.
+    Create a destination for a trip.
     """
-    if not request.is_json:
-        return jsonify({'error': 'Invalid content type, expected JSON'}), 400
+    trip = Trip.query.get(trip_id)
+    if not trip or trip.created_by != current_user.id:
+        abort(404, description="Trip not found")
 
-    data = request.json
-    try:
-    
-        destination = Destination.query.get(destination_id)
-        if not destination:
-            return jsonify({'error': 'Destination not found'}), 404
+    data = request.get_json()
+    destination = Destination(
+        trip_id=trip_id,
+        name=data['name'],
+        latitude=data.get('latitude'),
+        longitude=data.get('longitude'),
+        notes=data.get('notes', '')
+    )
+    db.session.add(destination)
+    db.session.commit()
+    return destination.to_dict(), 201
 
-    
-        itinerary = Itinerary.query.get(destination.itinerary_id)
-        if not itinerary or itinerary.user_id != current_user.id:
-            return jsonify({'error': 'Unauthorized or itinerary not found'}), 403
 
-    
-        destination.name = data.get('name', destination.name)
-        destination.description = data.get('description', destination.description)
+@destination_routes.route('/<int:dest_id>', methods=['PUT'])
+@login_required
+def update_destination(dest_id):
+    """
+    Edit a destination.
+    """
+    destination = Destination.query.get(dest_id)
+    if not destination or destination.trip.created_by != current_user.id:
+        abort(404, description="Destination not found")
 
-        db.session.commit()
+    data = request.get_json()
+    destination.name = data.get('name', destination.name)
+    destination.latitude = data.get('latitude', destination.latitude)
+    destination.longitude = data.get('longitude', destination.longitude)
+    destination.notes = data.get('notes', destination.notes)
 
-        return jsonify(destination.to_dict()), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': f'Failed to update destination: {str(e)}'}), 500
+    db.session.commit()
+    return destination.to_dict()
+
+
+@destination_routes.route('/<int:dest_id>', methods=['DELETE'])
+@login_required
+def delete_destination(dest_id):
+    """
+    Delete a destination.
+    """
+    destination = Destination.query.get(dest_id)
+    if not destination or destination.trip.created_by != current_user.id:
+        abort(404, description="Destination not found")
+
+    db.session.delete(destination)
+    db.session.commit()
+    return {'message': 'Destination deleted successfully'}
