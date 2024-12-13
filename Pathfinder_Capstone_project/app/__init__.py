@@ -7,10 +7,12 @@ from flask_login import LoginManager
 from .models import db, User
 from .api.user_routes import user_routes
 from .api.auth_routes import auth_routes
-from .api.itinerary_routes import itinerary_routes
-from .api.activity_routes import activities_routes
+from .api.trip_routes import trip_routes
+from .api.itinerary_item_routes import itinerary_item_routes
 from .api.destination_routes import destination_routes
-from .api.search_routes import search_routes
+from .api.collaboration_routes import collaboration_routes
+from .api.comment_routes import comment_routes
+from .api.media_routes import media_routes
 from .seeds import seed_commands
 from .config import Config
 
@@ -35,10 +37,12 @@ app.config.from_object(Config)
 # Register all blueprints for routes
 app.register_blueprint(user_routes, url_prefix="/api/users")
 app.register_blueprint(auth_routes, url_prefix="/api/auth")
-app.register_blueprint(itinerary_routes, url_prefix="/api/itineraries")
-app.register_blueprint(activities_routes, url_prefix="/api/activities")
-app.register_blueprint(search_routes, url_prefix="/api/search")
-app.register_blueprint(destination_routes, url_prefix='/api/destinations')
+app.register_blueprint(trip_routes, url_prefix="/api/trips")
+app.register_blueprint(itinerary_item_routes, url_prefix="/api/itinerary-items")
+app.register_blueprint(destination_routes, url_prefix="/api/destinations")
+app.register_blueprint(collaboration_routes, url_prefix="/api/collaborations")
+app.register_blueprint(comment_routes, url_prefix="/api/comments")
+app.register_blueprint(media_routes, url_prefix="/api/media")
 
 # Initialize the database
 db.init_app(app)
@@ -49,11 +53,7 @@ Migrate(app, db)
 # Application Security
 CORS(app)
 
-# Since we are deploying with Docker and Flask,
-# we won't be using a buildpack when we deploy to Heroku.
-# Therefore, we need to make sure that in production any
-# request made over http is redirected to https.
-# Well.........
+# Redirect HTTP to HTTPS in production
 @app.before_request
 def https_redirect():
     if os.environ.get("FLASK_ENV") == "production":
@@ -63,6 +63,7 @@ def https_redirect():
             return redirect(url, code=code)
 
 
+# Inject CSRF token after every request
 @app.after_request
 def inject_csrf_token(response):
     response.set_cookie(
@@ -75,6 +76,7 @@ def inject_csrf_token(response):
     return response
 
 
+# API documentation route
 @app.route("/api/docs")
 def api_help():
     """
@@ -92,12 +94,13 @@ def api_help():
     return route_list
 
 
+# React static files handler
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def react_root(path):
     """
     This route will direct to the public directory in our
-    react builds in the production environment for favicon
+    React builds in the production environment for favicon
     or index.html requests
     """
     if path == "favicon.ico":
@@ -105,6 +108,7 @@ def react_root(path):
     return app.send_static_file("index.html")
 
 
+# Error handler for 404 errors
 @app.errorhandler(404)
 def not_found(e):
     return app.send_static_file("index.html")

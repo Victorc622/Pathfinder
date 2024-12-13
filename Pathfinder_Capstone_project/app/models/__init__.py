@@ -1,14 +1,18 @@
 from .db import db, environment, SCHEMA
 from .user import User
-from .itinerary import Itinerary
+from .trip import Trip
+from .itinerary_item import ItineraryItem
 from .destination import Destination
 from .collaboration import Collaboration
-from .activities import Activity
+from .comment import Comment
+from .media import Media
 
 __all__ = [
     "User",
-    "Itinerary",
+    "Trip",
+    "ItineraryItem",
     "Destination",
     "Collaboration",
-    "Activity"
+    "Comment",
+    "Media"
 ]
